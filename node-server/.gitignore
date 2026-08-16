@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets — NEVER commit these
+.env
+.env.*
+!.env.example
+
+# User-uploaded media & live data (server-side only)
+uploads/
+data/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,15 @@
+{
+  "name": "gimbalflow-backend-root",
+  "version": "1.0.0",
+  "description": "GimbalFlow Backend Root Launcher for Node.js API Gateway, Python FastAPI ML engine, Redis, and MySQL",
+  "scripts": {
+    "install:node": "cd node-server && npm install",
+    "start:node": "cd node-server && npm start",
+    "dev:node": "cd node-server && npm run dev",
+    "start:python": "cd python-ml-service && python main.py",
+    "docker:up": "docker-compose up -d --build",
+    "docker:down": "docker-compose down"
+  },
+  "author": "Antigravity",
+  "license": "MIT"
+}

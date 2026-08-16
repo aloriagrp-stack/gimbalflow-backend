@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 1. MySQL Relational Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: gimbalflow_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: gimbalflow_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  # 2. Redis In-Memory Data Store & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: gimbalflow_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # 3. Python FastAPI ML Microservice
+  python-ml-service:
+    build: ./python-ml-service
+    container_name: gimbalflow_fastapi
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - FASTAPI_PORT=8000
+      - REDIS_HOST=redis
+      - MYSQL_HOST=mysql
+    depends_on:
+      - redis
+      - mysql
+
+  # 4. Node.js Express API Gateway
+  node-server:
+    build: ./node-server
+    container_name: gimbalflow_node_gateway
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - FASTAPI_URL=http://python-ml-service:8000
+      - REDIS_HOST=redis
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpassword
+      - MYSQL_DATABASE=gimbalflow_db
+    depends_on:
+      - redis
+      - mysql
+      - python-ml-service
+
+volumes:
+  mysql_data:

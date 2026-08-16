@@ -1,0 +1,26 @@
+{
+  "name": "gimbalflow-node-server",
+  "version": "1.0.0",
+  "description": "Node.js / Express API Gateway for GimbalFlow with MySQL, Redis, and Python ML integration",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [
+    "gimbalflow",
+    "express",
+    "mysql",
+    "redis",
+    "fastapi"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "mysql2": "^3.9.7"
+  }
+}
