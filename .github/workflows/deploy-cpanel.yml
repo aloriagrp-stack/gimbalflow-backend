@@ -1,0 +1,33 @@
+name: Deploy Backend to cPanel
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy-backend:
+    name: 🚀 Deploy Node.js Backend to cPanel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📤 Sync Backend Files to cPanel via FTP
+        uses: SamKirland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          local-dir: ./node-server/
+          server-dir: ${{ secrets.FTP_BACKEND_DIR || '/gimbalflow-backend/' }}
+          state-name: .ftp-deploy-backend-sync.json
+          exclude: |
+            **/node_modules/**
+            **/.git**
+            **/.github**
+            **/.env**
+            **/logs/**
