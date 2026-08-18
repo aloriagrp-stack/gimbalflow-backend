@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT || 21 }}
           local-dir: ./node-server/
-          server-dir: ${{ secrets.FTP_BACKEND_DIR || '/gimbalflow-backend/' }}
+          server-dir: ./
           state-name: .ftp-deploy-backend-sync.json
           exclude: |
             **/node_modules/**
