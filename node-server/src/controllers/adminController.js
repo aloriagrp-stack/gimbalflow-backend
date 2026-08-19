@@ -79,29 +79,29 @@ const EXT_BY_MIME = {
 };
 
 function saveMedia(dataUrl) {
-  if (typeof dataUrl !== 'string') {
-    console.warn('[Admin] saveMedia: no dataUrl provided');
-    return null;
+  if (typeof dataUrl !== 'string' || !dataUrl) return null;
+  
+  if (dataUrl.startsWith('/uploads/') || dataUrl.startsWith('http://') || dataUrl.startsWith('https://')) {
+    return dataUrl;
   }
-  const match = dataUrl.match(/^data:([a-z0-9-]+\/[a-z0-9-]+);base64,(.+)$/i);
+
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/i);
   if (!match) {
-    console.warn('[Admin] saveMedia: invalid data URL (length=' + dataUrl.length + ', prefix=' + dataUrl.slice(0, 40) + ')');
+    console.warn('[Admin] saveMedia: invalid data URL format');
     return null;
   }
-  const mime = match[1].toLowerCase();
-  const ext = EXT_BY_MIME[mime];
+
+  const rawMime = match[1].toLowerCase().trim().split(';')[0];
+  let ext = EXT_BY_MIME[rawMime];
   if (!ext) {
-    console.warn('[Admin] saveMedia: unsupported mime ' + mime);
-    return null;
+    if (rawMime.startsWith('video/')) ext = 'mp4';
+    else if (rawMime.startsWith('image/')) ext = 'jpg';
+    else ext = 'bin';
   }
 
   const buffer = Buffer.from(match[2], 'base64');
   if (buffer.length === 0) {
     console.warn('[Admin] saveMedia: empty buffer');
-    return null;
-  }
-  if (buffer.length > 160 * 1024 * 1024) {
-    console.warn('[Admin] saveMedia: file too large ' + buffer.length);
     return null;
   }
 
