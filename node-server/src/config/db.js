@@ -22,65 +22,7 @@ const memoryDb = {
     { id: 'ast-2', user_id: 'usr-demo-01', name: 'Neo-Tokyo Skydeck 2099', type: 'location', tag: '3D Set', tagClass: 'location', meta: 'Used in 2 Projects', url: 'https://image.pollinations.ai/prompt/cyberpunk%20city%20street%20at%20night%20neon%20signs%20rain%20cinematic?width=500&height=500&seed=502&model=flux&nologo=true' },
     { id: 'ast-3', user_id: 'usr-demo-01', name: 'Blade Runner Cyber Tone', type: 'style', tag: 'Color Style', tagClass: 'style', meta: 'Used in 6 Projects', url: 'https://image.pollinations.ai/prompt/neon%20city%20skyline%20blade%20runner%20fog%20cinematic?width=500&height=500&seed=503&model=flux&nologo=true' }
   ],
-  explore: [
-    {
-      id: 'exp-1',
-      title: 'Neo-Tokyo Cyberpunk Rain Chase',
-      creator: 'Alex Rivera',
-      type: 'cinema',
-      mediaUrl: 'https://image.pollinations.ai/prompt/cyberpunk%20city%20street%20at%20night%20neon%20signs%20rain%20cinematic?width=1000&height=562&seed=502&model=flux&nologo=true',
-      isVideo: true,
-      likes: 342,
-      model: 'Seedance v2',
-      aspectRatio: '16:9',
-      duration: '0:06',
-      prompt: 'Anamorphic 35mm wide shot of a futuristic cyberpunk director in a neon lit Tokyo alleyway, 60fps fluid motion, hyperrealistic rain reflections.',
-      camera: 'FPV Drone Swoop 360°',
-      lens: '35mm Prime Anamorphic'
-    },
-    {
-      id: 'exp-2',
-      title: 'Dune Desert Nomad Portrait',
-      creator: 'Elena Rostova',
-      type: 'image',
-      mediaUrl: 'https://image.pollinations.ai/prompt/cinematic%20portrait%20of%20a%20woman%20neon%20cyan%20rim%20light%20dark%20studio?width=1000&height=562&seed=501&model=flux&nologo=true',
-      isVideo: false,
-      likes: 512,
-      model: 'Higgsfield Cinema Pro',
-      aspectRatio: '1:1',
-      duration: '0:00',
-      prompt: 'Cinematic 8K portrait of a sand-covered nomad in golden hour sunlight, volumetric dust particles, extreme detail.',
-      camera: 'Portrait 85mm Bokeh'
-    },
-    {
-      id: 'exp-3',
-      title: 'Sci-Fi Hangar Mech Drop',
-      creator: 'Kenji Sato',
-      type: 'video',
-      mediaUrl: 'https://image.pollinations.ai/prompt/milky%20way%20over%20mountain%20peaks%20astrophotography?width=1000&height=562&seed=504&model=flux&nologo=true',
-      isVideo: true,
-      likes: 289,
-      model: 'ActionDiff v3',
-      aspectRatio: '16:9',
-      duration: '0:05',
-      prompt: 'Heavy giant mech drops into futuristic steel hangar, dynamic camera shake, sparks flying, cinematic lighting.',
-      camera: 'Dolly Push In'
-    },
-    {
-      id: 'exp-4',
-      title: 'Neon Cyber Samurai Duel',
-      creator: 'Marcus Vance',
-      type: 'cinema',
-      mediaUrl: 'https://image.pollinations.ai/prompt/abstract%20liquid%20chrome%20waves%20dark%20background?width=1000&height=562&seed=505&model=flux&nologo=true',
-      isVideo: true,
-      likes: 418,
-      model: 'Seedance v2',
-      aspectRatio: '21:9',
-      duration: '0:08',
-      prompt: 'Two cyborg samurai clashing katana blades under flickering neon signboards, slow motion sparks, rain soaked asphalt.',
-      camera: '360° Character Orbit'
-    }
-  ],
+  explore: [],
   presets: [
     {
       id: 'pst-1',

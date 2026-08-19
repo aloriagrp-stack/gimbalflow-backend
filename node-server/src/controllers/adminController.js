@@ -7,27 +7,9 @@ const DATA_DIR = path.join(__dirname, '..', '..', 'data');
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads', 'hero');
 const HERO_FILE = path.join(DATA_DIR, 'hero-cards.json');
 
-const DEFAULT_CARDS = [
-  { id: 'hero-1', media: 'video', src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', poster: 'https://image.pollinations.ai/prompt/cinematic%20portrait%20of%20a%20woman%20neon%20cyan%20rim%20light%20dark%20studio?width=1000&height=562&seed=501&model=flux&nologo=true', title: 'CINEMA STUDIO 4 IS HERE', desc: 'More control. Longer scenes. Sharper quality.', link: '/cinema' },
-  { id: 'hero-2', media: 'img', src: 'https://image.pollinations.ai/prompt/silhouette%20person%20neon%20fog%20cinematic%20moody?width=1000&height=562&seed=506&model=flux&nologo=true', title: 'GIMBALFLOW PLUGIN IN CHATGPT', desc: 'All the top models in one place: Seedance 2.5, Seedance 2.0...', link: '/image' },
-  { id: 'hero-3', media: 'img', src: 'https://image.pollinations.ai/prompt/neon%20city%20skyline%20blade%20runner%20fog%20cinematic?width=1000&height=562&seed=503&model=flux&nologo=true', title: 'GIMBALFLOW LAYERS', desc: 'Image editor with real-time AI layer decomposition', link: '/image' },
-  { id: 'hero-4', media: 'video', src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', poster: 'https://image.pollinations.ai/prompt/milky%20way%20over%20mountain%20peaks%20astrophotography?width=1000&height=562&seed=504&model=flux&nologo=true', title: 'SEEDANCE 2.5: CINEMA PASS', desc: 'New episode, 60fps fluid motion model fully integrated', link: '/cinema' },
-  { id: 'hero-5', media: 'img', src: 'https://image.pollinations.ai/prompt/cyberpunk%20city%20street%20at%20night%20neon%20signs%20rain%20cinematic?width=1000&height=562&seed=502&model=flux&nologo=true', title: 'THE GIMBALFLOW FILM FESTIVAL', desc: 'Submit your AI short film. Compete for $1M in director grants.', link: null }
-];
+const DEFAULT_CARDS = [];
 
-const DEFAULT_GALLERY = [
-  { id: 'gal-1', media: 'video', ratio: 'tall', src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', poster: 'https://image.pollinations.ai/prompt/milky%20way%20over%20mountain%20peaks%20astrophotography?width=800&height=1200&seed=504&model=flux&nologo=true' },
-  { id: 'gal-2', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/silhouette%20person%20neon%20fog%20cinematic%20moody?width=800&height=1200&seed=506&model=flux&nologo=true' },
-  { id: 'gal-3', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/cinematic%20portrait%20of%20a%20woman%20neon%20cyan%20rim%20light%20dark%20studio?width=800&height=1200&seed=501&model=flux&nologo=true' },
-  { id: 'gal-4', media: 'video', ratio: 'tall', src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4', poster: 'https://image.pollinations.ai/prompt/neon%20city%20skyline%20blade%20runner%20fog%20cinematic?width=800&height=1200&seed=503&model=flux&nologo=true' },
-  { id: 'gal-5', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/silhouette%20person%20neon%20fog%20cinematic%20moody?width=800&height=1200&seed=506&model=flux&nologo=true' },
-  { id: 'gal-6', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/cyberpunk%20city%20street%20at%20night%20neon%20signs%20rain%20cinematic?width=800&height=1200&seed=502&model=flux&nologo=true' },
-  { id: 'gal-7', media: 'video', ratio: 'tall', src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', poster: 'https://image.pollinations.ai/prompt/milky%20way%20over%20mountain%20peaks%20astrophotography?width=800&height=1200&seed=504&model=flux&nologo=true' },
-  { id: 'gal-8', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/neon%20city%20skyline%20blade%20runner%20fog%20cinematic?width=800&height=1200&seed=503&model=flux&nologo=true' },
-  { id: 'gal-9', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/abstract%20liquid%20chrome%20waves%20dark%20background?width=800&height=1200&seed=505&model=flux&nologo=true' },
-  { id: 'gal-10', media: 'img', ratio: 'tall', src: 'https://image.pollinations.ai/prompt/cinematic%20portrait%20of%20a%20woman%20neon%20cyan%20rim%20light%20dark%20studio?width=800&height=1200&seed=501&model=flux&nologo=true' },
-  { id: 'gal-11', media: 'img', ratio: 'square', src: 'https://image.pollinations.ai/prompt/snow%20mountain%20peak%20night%20starry%20sky?width=800&height=800&seed=507&model=flux&nologo=true' }
-];
+const DEFAULT_GALLERY = [];
 
 function ensureDirs() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
