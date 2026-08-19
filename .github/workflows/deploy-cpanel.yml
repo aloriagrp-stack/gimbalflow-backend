@@ -22,6 +22,8 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT || 21 }}
+          protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
+          security: loose
           local-dir: ./node-server/
           server-dir: ${{ secrets.FTP_BACKEND_DIR || '/gimbalflow-backend/' }}
           state-name: .ftp-deploy-backend-sync.json
@@ -31,3 +33,4 @@ jobs:
             **/.github**
             **/.env**
             **/logs/**
+            **/uploads/**

@@ -15,6 +15,8 @@ venv/
 
 # User-uploaded media & live data (server-side only)
 uploads/
+*/uploads/
+node-server/uploads/
 data/
 
 # Logs
