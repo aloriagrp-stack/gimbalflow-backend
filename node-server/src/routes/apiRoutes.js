@@ -8,7 +8,7 @@ const { getExploreItems } = require('../controllers/exploreController');
 const { getUserProfile, updateUserProfile, deductCredits } = require('../controllers/userController');
 const { verify: verifyAuth, me: authMe } = require('../controllers/authController');
 const { enhancePrompt, createGenerationJob } = require('../controllers/generationController');
-const { login, logout, requireAuth, getHeroCards, saveHeroCards, getGallery, saveGallery, getAdminInfo } = require('../controllers/adminController');
+const { login, logout, requireAuth, getHeroCards, saveHeroCards, getGallery, saveGallery, getAdminInfo, uploadMedia } = require('../controllers/adminController');
 const { getRedisStatus } = require('../config/redis');
 const { isMySQLActive } = require('../config/db');
 
@@ -60,5 +60,6 @@ router.post('/admin/logout', logout);
 router.get('/admin/info', requireAuth, getAdminInfo);
 router.post('/admin/hero', requireAuth, saveHeroCards);
 router.post('/admin/gallery', requireAuth, saveGallery);
+router.post('/admin/upload', requireAuth, uploadMedia);
 
 module.exports = router;

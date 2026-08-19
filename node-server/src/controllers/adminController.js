@@ -272,4 +272,19 @@ function saveGallery(req, res) {
   res.json({ ok: true, items: gallery });
 }
 
-module.exports = { login, logout, requireAuth, getHeroCards, saveHeroCards, getGallery, saveGallery, getAdminInfo };
+// Admin — direct media file upload endpoint.
+function uploadMedia(req, res) {
+  const { fileData } = req.body || {};
+  if (!fileData) {
+    return res.status(400).json({ error: 'fileData is required.' });
+  }
+
+  const url = saveMedia(fileData);
+  if (!url) {
+    return res.status(500).json({ error: 'Failed to save media file on server.' });
+  }
+
+  res.json({ ok: true, url });
+}
+
+module.exports = { login, logout, requireAuth, getHeroCards, saveHeroCards, getGallery, saveGallery, getAdminInfo, uploadMedia };
