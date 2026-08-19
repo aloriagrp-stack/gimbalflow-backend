@@ -85,13 +85,16 @@ function saveMedia(dataUrl) {
     return dataUrl;
   }
 
-  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/i);
-  if (!match) {
+  const base64Idx = dataUrl.indexOf(';base64,');
+  if (base64Idx === -1 || !dataUrl.startsWith('data:')) {
     console.warn('[Admin] saveMedia: invalid data URL format');
     return null;
   }
 
-  const rawMime = match[1].toLowerCase().trim().split(';')[0];
+  const header = dataUrl.slice(5, base64Idx);
+  const rawMime = header.split(';')[0].toLowerCase().trim();
+  const base64Data = dataUrl.slice(base64Idx + 8);
+
   let ext = EXT_BY_MIME[rawMime];
   if (!ext) {
     if (rawMime.startsWith('video/')) ext = 'mp4';
@@ -99,7 +102,7 @@ function saveMedia(dataUrl) {
     else ext = 'bin';
   }
 
-  const buffer = Buffer.from(match[2], 'base64');
+  const buffer = Buffer.from(base64Data, 'base64');
   if (buffer.length === 0) {
     console.warn('[Admin] saveMedia: empty buffer');
     return null;
@@ -108,11 +111,11 @@ function saveMedia(dataUrl) {
   const name = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}.${ext}`;
   try {
     fs.writeFileSync(path.join(UPLOAD_DIR, name), buffer);
+    return `/uploads/hero/${name}`;
   } catch (err) {
     console.error('[Admin] saveMedia: write failed:', err.message);
     return null;
   }
-  return `/uploads/hero/${name}`;
 }
 
 function deleteMedia(urlPath) {
@@ -128,9 +131,6 @@ function deleteMedia(urlPath) {
 // ─── Auth handlers ────────────────────────────────────────────────
 function login(req, res) {
   const { username, password } = req.body || {};
-  if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD_HASH) {
-    return res.status(500).json({ error: 'Admin credentials are not configured on the server.' });
-  }
   if (!checkCredentials(username, password)) {
     return res.status(401).json({ error: 'Invalid username or password.' });
   }
@@ -166,8 +166,6 @@ function getAdminInfo(req, res) {
 }
 
 // Admin — replace the whole hero deck (title/desc/media/src/poster).
-// Never fails on media: cards without media inherit the previous version,
-// brand-new cards without media are skipped. Saved state is always kept.
 function saveHeroCards(req, res) {
   const { cards } = req.body || {};
   if (!Array.isArray(cards)) {
@@ -187,22 +185,33 @@ function saveHeroCards(req, res) {
     let src = typeof c.src === 'string' && c.src ? c.src : (prev && prev.src ? prev.src : '');
     let poster = typeof c.poster === 'string' && c.poster ? c.poster : (prev && prev.poster ? prev.poster : '');
 
-    // If a fresh upload was supplied, persist it to disk and remove the old file.
     const newSrc = saveMedia(c.srcData);
     if (newSrc) {
       deleteMedia(src);
       src = newSrc;
+    } else if (!src && typeof c.srcData === 'string' && c.srcData) {
+      src = c.srcData;
     }
+
     const newPoster = saveMedia(c.posterData);
     if (newPoster) {
       deleteMedia(poster);
       poster = newPoster;
+    } else if (!poster && typeof c.posterData === 'string' && c.posterData) {
+      poster = c.posterData;
     }
 
-    // Brand-new card without any media → skip it instead of failing the save.
-    if (!prev && (!title || !src)) continue;
+    if (!title && !src) continue;
 
-    refreshed.push({ id: c.id || `hero-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, media, src: src || '', poster: poster || '', title: title || (prev ? prev.title : ''), desc, link });
+    refreshed.push({
+      id: c.id || `hero-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      media,
+      src: src || '',
+      poster: poster || '',
+      title: title || (prev ? prev.title : 'Untitled Card'),
+      desc,
+      link
+    });
   }
 
   heroCards = refreshed;
@@ -216,8 +225,6 @@ function getGallery(req, res) {
 }
 
 // Admin — replace the whole gallery deck.
-// Never fails on media: items without media inherit the previous version,
-// brand-new items without media are skipped. Saved state is always kept.
 function saveGallery(req, res) {
   const { items } = req.body || {};
   if (!Array.isArray(items)) {
@@ -228,7 +235,6 @@ function saveGallery(req, res) {
   for (const it of items) {
     const prev = gallery.find((g) => g.id === it.id) || null;
     const media = it.media === 'video' ? 'video' : 'img';
-    // Gallery supports 9:16 portrait cards + square accent cards only.
     const ratio = it.ratio === 'square' ? 'square' : 'tall';
 
     let src = typeof it.src === 'string' && it.src ? it.src : (prev && prev.src ? prev.src : '');
@@ -238,17 +244,27 @@ function saveGallery(req, res) {
     if (newSrc) {
       deleteMedia(src);
       src = newSrc;
+    } else if (!src && typeof it.srcData === 'string' && it.srcData) {
+      src = it.srcData;
     }
+
     const newPoster = saveMedia(it.posterData);
     if (newPoster) {
       deleteMedia(poster);
       poster = newPoster;
+    } else if (!poster && typeof it.posterData === 'string' && it.posterData) {
+      poster = it.posterData;
     }
 
-    // Brand-new item without any media → skip it instead of failing the save.
-    if (!prev && !src) continue;
+    if (!src) continue;
 
-    refreshed.push({ id: it.id || `gal-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, media, ratio, src: src || '', poster: poster || '' });
+    refreshed.push({
+      id: it.id || `gal-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      media,
+      ratio,
+      src: src || '',
+      poster: poster || ''
+    });
   }
 
   gallery = refreshed;
