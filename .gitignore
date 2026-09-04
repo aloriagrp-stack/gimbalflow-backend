@@ -23,6 +23,10 @@ data/
 *.log
 logs/
 
+# Archives
+*.zip
+backend.zip
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,8 +1,9 @@
+# GimbalFlow Backend - cPanel WSGI Entry Point
+# Deployment sync verified with SSH Deploy Key
 import os
 import sys
 import importlib
 
-# Ensure both current directory and python-server are in Python path
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PYTHON_SERVER_DIR = os.path.join(CURRENT_DIR, "python-server")
 
