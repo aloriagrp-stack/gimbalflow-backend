@@ -39,27 +39,155 @@ class GimbalFlowMLEngine:
         "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1000&auto=format&fit=crop"
     ]
 
+    def _clean_noise_prefixes(self, prompt: str) -> str:
+        """Strips command noise like 'make a', 'generate an', 'create a photo of'"""
+        import re
+        p = prompt.strip()
+        noise_patterns = [
+            r'^(please\s+)?(can\s+you\s+)?(make|create|generate|draw|render|produce|show|give\s+me)\s+(an?|the|some)?\s+',
+            r'^(a\s+)?(picture|photo|photograph|image|illustration|painting|render)\s+(of\s+(an?|the)?)?\s*',
+            r'^(wallpaper\s+of\s+(an?|the)?)?\s*',
+            r'^(ultra\s+)?(realistic\s+)?(hd\s+)?(4k\s+)?(8k\s+)?'
+        ]
+        for pat in noise_patterns:
+            p = re.sub(pat, '', p, flags=re.IGNORECASE).strip()
+        return p if p else prompt.strip()
+
+    def _classify_category(self, prompt: str) -> str:
+        """Classifies prompt into visual cinematography domain"""
+        p = prompt.lower()
+        food_kw = ["apple", "fruit", "burger", "pizza", "coffee", "cake", "bread", "steak", "dish", "food", "cocktail", "pasta", "dessert", "drink", "chocolate", "berry", "orange", "lemon", "sushi", "soup", "salad", "sandwich", "mango", "banana", "strawberry"]
+        wildlife_kw = ["dog", "cat", "puppy", "kitten", "lion", "tiger", "bird", "eagle", "wolf", "fox", "bear", "horse", "animal", "pet", "wildlife", "leopard", "elephant", "deer", "owl", "rabbit"]
+        char_kw = ["girl", "woman", "man", "boy", "person", "human", "face", "portrait", "model", "warrior", "samurai", "astronaut", "cybernetic", "cyborg", "queen", "king", "knight", "soldier", "detective", "eyes", "smile", "lady", "guy", "child", "character", "monk", "dancer"]
+        land_kw = ["mountain", "forest", "river", "ocean", "sea", "beach", "lake", "valley", "waterfall", "desert", "nature", "tree", "trees", "cliff", "clouds", "sky", "sunset", "sunrise", "snow", "aurora", "jungle", "meadow", "island", "landscape", "canyon"]
+        urban_kw = ["city", "street", "cyberpunk", "futuristic", "building", "room", "interior", "skyscraper", "neon", "alley", "architecture", "spaceship", "sci-fi", "scifi", "downtown", "metropolis", "cyber", "station", "bridge", "penthouse"]
+        veh_kw = ["car", "sports car", "supercar", "motorcycle", "bike", "vehicle", "jet", "airplane", "plane", "boat", "ship", "yacht", "race car", "porsche", "ferrari", "lamborghini", "bmw"]
+        fantasy_kw = ["dragon", "wizard", "magic", "crystal", "fairy", "alien", "portal", "celestial", "galaxy", "nebula", "ethereal", "mystical", "spells", "cosmic"]
+
+        for kw in food_kw:
+            if kw in p:
+                return "FOOD_ORGANIC"
+        for kw in wildlife_kw:
+            if kw in p:
+                return "ANIMAL_WILDLIFE"
+        for kw in veh_kw:
+            if kw in p:
+                return "VEHICLE_ACTION"
+        for kw in char_kw:
+            if kw in p:
+                return "CHARACTER_PORTRAIT"
+        for kw in urban_kw:
+            if kw in p:
+                return "URBAN_SCIFI_ARCHITECTURE"
+        for kw in land_kw:
+            if kw in p:
+                return "LANDSCAPE_NATURE"
+        for kw in fantasy_kw:
+            if kw in p:
+                return "FANTASY_MYTHICAL"
+        return "GENERAL"
+
     def enhance_prompt(self, prompt: str) -> Dict[str, Any]:
         """
-        Applies AI Director prompt expansion rules with volumetric lighting, 
-        anamorphic lens details, and color grading keywords.
+        Director-Grade Autonomous AI Prompt Engineering Engine.
+        Transforms simple raw user prompts into Hollywood-director grade, 
+        optics-specific, lighting-balanced, photorealistic masterpieces.
         """
-        cinematic_enhancements = [
-            "volumetric sunbeams",
-            "anamorphic lens flare 2.39:1",
-            "masterpiece 8K render",
-            "photorealistic lighting",
-            "octane render depth of field",
-            "60fps high precision motion vector"
-        ]
-        
-        selected_enhancements = random.sample(cinematic_enhancements, 3)
-        enhanced_prompt = f"{prompt.strip()}, {', '.join(selected_enhancements)}"
-        
+        raw_prompt = prompt.strip()
+        clean_subject = self._clean_noise_prefixes(raw_prompt)
+        category = self._classify_category(clean_subject)
+
+        # Enhance short raw single words (e.g. 'apple' -> 'crisp ripe red Honeycrisp apple')
+        subject_display = clean_subject
+        if clean_subject.lower() == "apple":
+            subject_display = "fresh crisp ripe red Honeycrisp apple"
+
+        category_presets = {
+            "FOOD_ORGANIC": {
+                "prefix": f"Extreme macro commercial studio photography of {subject_display}",
+                "optics": "shot on Hasselblad H6D-100c with HC 100mm f/2.2 Macro lens",
+                "textures": "glistening morning condensation dew droplets on waxy skin, ultra-fine organic pores, crisp natural cuticle micro-reflections",
+                "lighting": "commercial edge rim lighting, soft diffused directional studio bounce, deep chiaroscuro contrast",
+                "backdrop": "resting on a dark textured slate background with subtle water reflections",
+                "finish": "award-winning culinary magazine cover, shallow depth of field, creamy smooth bokeh, Octane render 8K UHD",
+                "tags": ["Macro Optics", "Dew Droplets", "Hasselblad 100c", "Chiaroscuro", "8K Octane"]
+            },
+            "ANIMAL_WILDLIFE": {
+                "prefix": f"Intimate wildlife portrait of {subject_display}",
+                "optics": "shot on Sony Alpha 1 with FE 400mm f/2.8 GM OSS telephoto lens",
+                "textures": "individual fur strand definition, glistening wet nose texture, razor-sharp lifelike eye reflections, delicate whiskers",
+                "lighting": "soft natural golden hour backlight, delicate rim glow separating subject from background, warm atmospheric fill",
+                "backdrop": "lush softly blurred natural habitat with dappled sunbeams",
+                "finish": "National Geographic award winner, tack sharp focus on eyes, ultra shallow depth of field, 8K ultra realistic",
+                "tags": ["Sony Alpha 1", "Fur Definition", "Golden Backlight", "400mm Prime", "National Geographic"]
+            },
+            "CHARACTER_PORTRAIT": {
+                "prefix": f"Cinematic close-up portrait of {subject_display}",
+                "optics": "shot on ARRI Alexa Mini LF with Cooke Anamorphic /i Full Frame Plus 85mm T2.3 lens",
+                "textures": "realistic human skin pores, micro-peach fuzz, subsurface scattering, razor-sharp eye catchlights, strand-level hair definition",
+                "lighting": "Rembrandt lighting, soft warm key light, gentle cyan-teal edge backlight, deep cinematic shadows",
+                "backdrop": "atmospheric background with soft volumetric blur",
+                "finish": "IMAX cinematic aesthetic, Kodak Vision3 500T film grain, DaVinci Resolve color grade, 8K photorealistic",
+                "tags": ["ARRI Alexa LF", "Cooke Anamorphic", "Rembrandt Lighting", "Subsurface Scattering", "8K Film Grain"]
+            },
+            "LANDSCAPE_NATURE": {
+                "prefix": f"Epic sweeping panoramic vista of {subject_display}",
+                "optics": "shot on RED V-Raptor 8K VV with Canon Cine 24mm T1.5 prime lens",
+                "textures": "crisp atmospheric mist swirling through terrain, airborne particulate motes, wet rock reflections, sharp foliage detail",
+                "lighting": "golden hour sunlight cresting the horizon, dramatic volumetric god rays breaking through clouds, HDR dynamic range",
+                "backdrop": "majestic endless horizon with layered mountain silhouettes",
+                "finish": "National Geographic award-winning photography, deep focus infinity clarity, hyper-detailed 8K vista",
+                "tags": ["RED V-Raptor 8K", "Golden Hour", "God Rays", "Infinite Depth", "National Geographic"]
+            },
+            "URBAN_SCIFI_ARCHITECTURE": {
+                "prefix": f"Atmospheric cinematic architectural view of {subject_display}",
+                "optics": "shot on Sony Venice 2 with Panavision Primo 35mm T1.9 lens",
+                "textures": "wet asphalt with vivid neon puddle reflections, brushed metal panelling, volumetric steam rising from vents, intricate structural symmetry",
+                "lighting": "moody dual-tone neon luminescence (cyan and amber), deep volumetric atmospheric haze, rim edge highlights",
+                "backdrop": "towering monolithic architecture fading into low-hanging clouds",
+                "finish": "Unreal Engine 5.4 Lumen render, raytraced reflections, 8K hyper-detailed, blade runner cyberpunk aesthetic",
+                "tags": ["Sony Venice 2", "Neon Reflections", "Lumen Raytracing", "Volumetric Steam", "8K Architecture"]
+            },
+            "VEHICLE_ACTION": {
+                "prefix": f"Dynamic low-angle high-speed tracking shot of {subject_display}",
+                "optics": "shot on Phantom Flex4K with Leica Summilux-C 50mm lens",
+                "textures": "glossy automotive multi-coat clearcoat reflections, carbon fiber weave texture, specular highlights on aerodynamic curves, motion-blurred road surface",
+                "lighting": "dramatic automotive studio rim lighting, crisp headlight illumination beams, dark glossy tarmac reflections",
+                "backdrop": "motion-blurred winding coastal highway at twilight",
+                "finish": "Speedhunters commercial automotive grade, 8K ultra photorealistic, raytraced reflections, cinematic color grade",
+                "tags": ["Phantom Flex4K", "Automotive Clearcoat", "Motion Blur", "Specular Highlights", "8K Commercial"]
+            },
+            "FANTASY_MYTHICAL": {
+                "prefix": f"Breathtaking dark fantasy illustration of {subject_display}",
+                "optics": "cinematic wide composition, anamorphic 2.39:1 aspect ratio",
+                "textures": "intricate crystalline fractures, ethereal glowing runes, drifting stardust particles, hyper-detailed organic scales and metals",
+                "lighting": "magical bioluminescent rim glow, celestial moonlight rays piercing twilight haze, volumetric fog",
+                "backdrop": "ancient enchanted landscape under a cosmic aurora nebula sky",
+                "finish": "ArtStation Trending, masterwork concept art, Octane 8K render, Greg Rutkowski and Craig Mullins aesthetic",
+                "tags": ["Dark Fantasy", "Bioluminescence", "Cosmic Aurora", "Octane 8K", "ArtStation Masterpiece"]
+            },
+            "GENERAL": {
+                "prefix": f"Masterpiece cinematic capture of {subject_display}",
+                "optics": "shot on 70mm Panavision IMAX camera with prime cinema optics",
+                "textures": "tactile micro-surface details, crisp physical textures, lifelike depth, natural material properties",
+                "lighting": "three-point studio lighting, soft diffused fill, crisp dramatic rim highlights",
+                "backdrop": "clean atmospheric depth with subtle cinematic blur",
+                "finish": "8K UHD, Octane 3D hyper-photorealistic render, Hasselblad natural color science, award-winning composition, shallow depth of field",
+                "tags": ["Panavision 70mm", "Octane Render", "Three-Point Light", "8K Masterpiece", "Shallow DOF"]
+            }
+        }
+
+        preset = category_presets.get(category, category_presets["GENERAL"])
+        enhanced_prompt = (
+            f"{preset['prefix']}, {preset['optics']}, {preset['textures']}, "
+            f"{preset['lighting']}, {preset['backdrop']}, {preset['finish']}"
+        )
+
         return {
-            "original_prompt": prompt,
+            "original_prompt": raw_prompt,
             "enhanced_prompt": enhanced_prompt,
-            "applied_tags": selected_enhancements
+            "category": category,
+            "applied_tags": preset["tags"]
         }
 
     def generate_camera_trajectory(self, camera_type: str, fov: int = 85, roll: float = 0.0, pitch: float = 0.0, speed: float = 1.0) -> Dict[str, Any]:

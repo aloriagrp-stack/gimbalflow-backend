@@ -14,6 +14,7 @@ for path in [CURRENT_DIR, PYTHON_SERVER_DIR]:
 # Dynamically resolve and import the FastAPI app
 app = None
 try:
+    # pyrefly: ignore [missing-import]
     from app.main import app as fastapi_app
     app = fastapi_app
 except ImportError:

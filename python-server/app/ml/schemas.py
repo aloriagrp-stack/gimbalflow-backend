@@ -35,6 +35,7 @@ class PromptEnhanceRequest(BaseModel):
 class PromptEnhanceResponse(BaseModel):
     original_prompt: str
     enhanced_prompt: str
+    category: Optional[str] = "GENERAL"
     applied_tags: List[str]
 
 class CameraTrajectoryRequest(BaseModel):
