@@ -46,8 +46,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. Uploaded Media Static Files Mount (/uploads/...)
+# 2. Uploaded Media Static Files Mount (/uploads/... and /api/uploads/...)
 app.mount("/uploads", StaticFiles(directory=str(settings.UPLOADS_DIR)), name="uploads")
+app.mount("/api/uploads", StaticFiles(directory=str(settings.UPLOADS_DIR)), name="api_uploads")
 
 # 3. Register Routers
 app.include_router(auth_router)

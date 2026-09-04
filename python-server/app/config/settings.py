@@ -41,14 +41,20 @@ class Settings:
     # Firebase Web API Key for Google Token Verification
     FIREBASE_API_KEY: str = os.getenv("FIREBASE_API_KEY", "AIzaSyCooVb9tdiuGBkqAsJlue4MWsO2B6bUrow")
 
+    # AI Image Generation Provider Keys
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", os.getenv("GOOGLE_API_KEY", ""))
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+
     # Directories
     BASE_DIR: Path = SERVER_DIR
     DATA_DIR: Path = SERVER_DIR / "data"
     UPLOADS_DIR: Path = SERVER_DIR / "uploads"
     HERO_UPLOADS_DIR: Path = UPLOADS_DIR / "hero"
+    GENERATED_UPLOADS_DIR: Path = UPLOADS_DIR / "generated"
 
 settings = Settings()
 
 # Ensure directories exist
 settings.DATA_DIR.mkdir(parents=True, exist_ok=True)
 settings.HERO_UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+settings.GENERATED_UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
