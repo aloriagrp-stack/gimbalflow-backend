@@ -23,40 +23,26 @@ services:
     ports:
       - "6379:6379"
 
-  # 3. Python FastAPI ML Microservice
-  python-ml-service:
-    build: ./python-ml-service
-    container_name: gimbalflow_fastapi
-    restart: always
-    ports:
-      - "8000:8000"
-    environment:
-      - FASTAPI_PORT=8000
-      - REDIS_HOST=redis
-      - MYSQL_HOST=mysql
-    depends_on:
-      - redis
-      - mysql
-
-  # 4. Node.js Express API Gateway
-  node-server:
-    build: ./node-server
-    container_name: gimbalflow_node_gateway
+  # 3. Unified Python FastAPI Backend (API Gateway, Admin, Auth, Database, & ML Engine)
+  python-backend:
+    build: ./python-server
+    container_name: gimbalflow_python_backend
     restart: always
     ports:
       - "5000:5000"
     environment:
       - PORT=5000
-      - FASTAPI_URL=http://python-ml-service:8000
+      - HOST=0.0.0.0
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - MYSQL_HOST=mysql
       - MYSQL_USER=root
       - MYSQL_PASSWORD=rootpassword
       - MYSQL_DATABASE=gimbalflow_db
+      - MYSQL_PORT=3306
     depends_on:
       - redis
       - mysql
-      - python-ml-service
 
 volumes:
   mysql_data:
