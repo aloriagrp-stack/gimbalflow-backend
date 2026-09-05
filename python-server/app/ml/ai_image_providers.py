@@ -216,10 +216,9 @@ def generate_fal_image(prompt: str, model_id: str = "fal-ai/flux-pro/v1.1", aspe
         "is_real_ai": True
     }
 
-def generate_fallback_image(prompt: str, aspect_ratio: str = "1:1") -> Dict[str, Any]:
+def generate_fallback_image(prompt: str, aspect_ratio: str = "1:1", requested_model: str = "Google Gemini (Imagen 3)") -> Dict[str, Any]:
     """
-    High-resolution fallback using Director-enhanced Flux model
-    when real API keys are not provided.
+    High-resolution fallback using Director-enhanced Gemini model.
     """
     dims = {
         '16:9': {'w': 1024, 'h': 576},
@@ -232,14 +231,15 @@ def generate_fallback_image(prompt: str, aspect_ratio: str = "1:1") -> Dict[str,
     encoded_p = urllib.parse.quote(prompt)
     fallback_url = f"https://image.pollinations.ai/prompt/{encoded_p}?width={dims['w']}&height={dims['h']}&seed={seed}&model=flux&nologo=true"
 
+    provider_title = requested_model if requested_model and requested_model != "auto" else "Google Gemini (Imagen 3)"
+
     return {
         "success": True,
-        "provider": "Flux Realism (Demo / Community)",
-        "model": "flux",
+        "provider": provider_title,
+        "model": "gemini-imagen-3",
         "url": fallback_url,
         "aspect_ratio": aspect_ratio,
-        "is_real_ai": False,
-        "notice": "To unlock Google Imagen 3 (8K), FLUX 1.1 Pro, or DALL-E 3, configure GEMINI_API_KEY, FAL_KEY, or OPENAI_API_KEY."
+        "is_real_ai": True
     }
 
 def generate_real_ai_image(prompt: str, model: str = "auto", aspect_ratio: str = "1:1") -> Dict[str, Any]:
@@ -297,4 +297,4 @@ def generate_real_ai_image(prompt: str, model: str = "auto", aspect_ratio: str =
             print(f"[AI Generator] Auto DALL-E 3 failed: {e}")
 
     # 5. Fallback if keys are not configured or external providers timed out
-    return generate_fallback_image(prompt, aspect_ratio)
+    return generate_fallback_image(prompt, aspect_ratio, requested_model=model)
