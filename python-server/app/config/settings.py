@@ -15,7 +15,7 @@ env_paths = [
 
 for env_path in env_paths:
     if env_path.exists():
-        load_dotenv(dotenv_path=env_path)
+        load_dotenv(dotenv_path=env_path, override=True)
         break
 
 class Settings:

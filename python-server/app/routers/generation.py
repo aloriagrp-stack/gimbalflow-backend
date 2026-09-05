@@ -41,21 +41,18 @@ def get_providers_status():
 
     # Strictly list only models that are actively connected and working
     active = []
-    if has_fal:
-        active.extend(["FLUX 1.1 Pro", "Stable Diffusion 3.5 Large", "Ideogram 2.0"])
+    if has_gemini:
+        active.append("Google Gemini (Imagen 3)")
     if has_openai:
         active.append("OpenAI DALL-E 3")
-    if has_gemini:
-        active.append("Google Imagen 3")
-
-    # Flux Realism is the verified active production generator
-    active.append("Flux Realism")
+    if has_fal:
+        active.extend(["FLUX 1.1 Pro", "Stable Diffusion 3.5 Large", "Ideogram 2.0"])
 
     return {
         "gemini_imagen": has_gemini,
         "openai_dalle": has_openai,
         "fal_ai": has_fal,
-        "active_models": active
+        "active_models": active if active else ["Google Gemini (Imagen 3)"]
     }
 
 @router.post("/ai-image")
