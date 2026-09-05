@@ -44,6 +44,7 @@ class Settings:
     # AI Image Generation Provider Keys
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", os.getenv("GOOGLE_API_KEY", ""))
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    FAL_KEY: str = os.getenv("FAL_KEY", "")
 
     # Directories
     BASE_DIR: Path = SERVER_DIR

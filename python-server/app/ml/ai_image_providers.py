@@ -153,6 +153,69 @@ def generate_dalle3(prompt: str, aspect_ratio: str = "1:1", quality: str = "hd")
         "is_real_ai": True
     }
 
+def generate_fal_image(prompt: str, model_id: str = "fal-ai/flux-pro/v1.1", aspect_ratio: str = "1:1") -> Dict[str, Any]:
+    """
+    Generates images via Fal.ai API (supports FLUX 1.1 Pro, SD 3.5, Ideogram 2.0).
+    """
+    api_key = settings.FAL_KEY
+    if not api_key:
+        raise ValueError("FAL_KEY is not configured in environment")
+
+    size_map = {
+        "1:1": "square_hd",
+        "16:9": "landscape_16_9",
+        "9:16": "portrait_16_9",
+        "21:9": "landscape_16_9"
+    }
+    image_size = size_map.get(aspect_ratio, "square_hd")
+
+    url = f"https://fal.run/{model_id}"
+    payload = {
+        "prompt": prompt,
+        "image_size": image_size,
+        "enable_safety_checker": False
+    }
+
+    req_data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=req_data,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Key {api_key}",
+            "User-Agent": "GimbalFlow-Studio/2.0"
+        }
+    )
+
+    with urllib.request.urlopen(req, timeout=45) as resp:
+        if resp.status != 200:
+            raise RuntimeError(f"Fal.ai returned status {resp.status}")
+        res_json = json.loads(resp.read().decode("utf-8"))
+
+    images = res_json.get("images", [])
+    if not images:
+        raise RuntimeError("Fal.ai returned no images")
+
+    image_url = images[0].get("url")
+    # Save locally to ensure permanent hosting
+    try:
+        with urllib.request.urlopen(image_url, timeout=20) as img_resp:
+            img_bytes = img_resp.read()
+            b64_image = base64.b64encode(img_bytes).decode("utf-8")
+            saved_url = save_image_base64(b64_image, "jpg")
+    except Exception:
+        saved_url = image_url
+
+    provider_name = "FLUX 1.1 Pro" if "flux" in model_id else "Stable Diffusion 3.5" if "stable" in model_id else "Ideogram 2.0"
+    return {
+        "success": True,
+        "provider": f"{provider_name} (High-Fidelity)",
+        "model": model_id,
+        "url": saved_url,
+        "aspect_ratio": aspect_ratio,
+        "is_real_ai": True
+    }
+
 def generate_fallback_image(prompt: str, aspect_ratio: str = "1:1") -> Dict[str, Any]:
     """
     High-resolution fallback using Director-enhanced Flux model
@@ -176,32 +239,51 @@ def generate_fallback_image(prompt: str, aspect_ratio: str = "1:1") -> Dict[str,
         "url": fallback_url,
         "aspect_ratio": aspect_ratio,
         "is_real_ai": False,
-        "notice": "To unlock Google Imagen 3 (8K) or DALL-E 3, configure GEMINI_API_KEY or OPENAI_API_KEY in backend .env."
+        "notice": "To unlock Google Imagen 3 (8K), FLUX 1.1 Pro, or DALL-E 3, configure GEMINI_API_KEY, FAL_KEY, or OPENAI_API_KEY."
     }
 
 def generate_real_ai_image(prompt: str, model: str = "auto", aspect_ratio: str = "1:1") -> Dict[str, Any]:
     """
-    Master Dispatcher: Selects Google Imagen 3, OpenAI DALL-E 3, or fallback based on requested model and keys.
+    Master Dispatcher: Selects Fal.ai (FLUX 1.1 Pro / SD 3.5 / Ideogram), Google Imagen 3, OpenAI DALL-E 3, or fallback.
     """
     m_lower = model.lower()
     has_gemini = bool(settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 10)
     has_openai = bool(settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 10)
+    has_fal = bool(settings.FAL_KEY and len(settings.FAL_KEY) > 10)
 
-    # 1. User explicitly requested DALL-E 3
+    # 1. Fal.ai Models (FLUX 1.1 Pro / SD 3.5 / Ideogram)
+    if has_fal and ("flux" in m_lower or "sd3" in m_lower or "stable" in m_lower or "ideo" in m_lower):
+        try:
+            model_id = "fal-ai/flux-pro/v1.1"
+            if "stable" in m_lower or "sd" in m_lower:
+                model_id = "fal-ai/stable-diffusion-v35-large"
+            elif "ideo" in m_lower:
+                model_id = "fal-ai/ideogram/v2"
+            return generate_fal_image(prompt, model_id, aspect_ratio)
+        except Exception as e:
+            print(f"[AI Generator] Fal.ai {model} failed: {e}. Falling back...")
+
+    # 2. User explicitly requested DALL-E 3
     if ("dall" in m_lower or "openai" in m_lower) and has_openai:
         try:
             return generate_dalle3(prompt, aspect_ratio)
         except Exception as e:
             print(f"[AI Generator] DALL-E 3 failed: {e}. Falling back...")
 
-    # 2. User explicitly requested Google Imagen 3
+    # 3. User explicitly requested Google Imagen 3
     if ("imagen" in m_lower or "gemini" in m_lower or "google" in m_lower) and has_gemini:
         try:
             return generate_imagen3(prompt, aspect_ratio)
         except Exception as e:
             print(f"[AI Generator] Imagen 3 failed: {e}. Falling back...")
 
-    # 3. Auto mode: prefer Imagen 3 (best photorealism & speed), then DALL-E 3
+    # 4. Auto mode preference: Fal (FLUX 1.1 Pro) > Google Imagen 3 > DALL-E 3
+    if has_fal:
+        try:
+            return generate_fal_image(prompt, "fal-ai/flux-pro/v1.1", aspect_ratio)
+        except Exception as e:
+            print(f"[AI Generator] Auto Fal.ai failed: {e}")
+
     if has_gemini:
         try:
             return generate_imagen3(prompt, aspect_ratio)
@@ -214,5 +296,5 @@ def generate_real_ai_image(prompt: str, model: str = "auto", aspect_ratio: str =
         except Exception as e:
             print(f"[AI Generator] Auto DALL-E 3 failed: {e}")
 
-    # 4. Fallback if keys are not configured or external providers timed out
+    # 5. Fallback if keys are not configured or external providers timed out
     return generate_fallback_image(prompt, aspect_ratio)

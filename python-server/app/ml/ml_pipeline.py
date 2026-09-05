@@ -102,6 +102,41 @@ class GimbalFlowMLEngine:
         if clean_subject.lower() == "apple":
             subject_display = "fresh crisp ripe red Honeycrisp apple"
 
+        # 1. Attempt genuine Google Gemini Flash prompt engineering (if key configured)
+        from app.config.settings import settings
+        if settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 10:
+            try:
+                import urllib.request
+                import json
+                gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={settings.GEMINI_API_KEY}"
+                system_instruction = (
+                    "You are an elite Hollywood cinematographer and Octane 3D prompt engineer. "
+                    "Expand this user's simple prompt into a single ultra-detailed, photorealistic, director-grade visual prompt. "
+                    "Specify camera body (e.g. Hasselblad/ARRI), prime lens, volumetric lighting, micro-textures, and depth of field. "
+                    "Keep it under 65 words. Output ONLY the raw expanded prompt without any preamble or quotes."
+                )
+                payload = {
+                    "contents": [{"parts": [{"text": f"{system_instruction}\nPrompt: {clean_subject}"}]}]
+                }
+                req = urllib.request.Request(
+                    gemini_url,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={"Content-Type": "application/json"}
+                )
+                with urllib.request.urlopen(req, timeout=2.0) as resp:
+                    if resp.status == 200:
+                        data = json.loads(resp.read().decode("utf-8"))
+                        text_val = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                        if len(text_val) > 20:
+                            return {
+                                "original_prompt": raw_prompt,
+                                "enhanced_prompt": text_val,
+                                "category": category,
+                                "applied_tags": ["Google Gemini Director", "8K Cinema Optics", "Volumetric Light", "Macro Textures"]
+                            }
+            except Exception as e:
+                pass  # Fall through to high-precision category engine
+
         category_presets = {
             "FOOD_ORGANIC": {
                 "prefix": f"Extreme macro commercial studio photography of {subject_display}",
