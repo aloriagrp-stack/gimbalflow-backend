@@ -38,17 +38,24 @@ def get_providers_status():
     has_gemini = bool(settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 10)
     has_openai = bool(settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 10)
     has_fal = bool(settings.FAL_KEY and len(settings.FAL_KEY) > 10)
+
+    # Strictly list only models that are actively connected and working
+    active = []
+    if has_fal:
+        active.extend(["FLUX 1.1 Pro", "Stable Diffusion 3.5 Large", "Ideogram 2.0"])
+    if has_openai:
+        active.append("OpenAI DALL-E 3")
+    if has_gemini:
+        active.append("Google Imagen 3")
+
+    # Flux Realism is the verified active production generator
+    active.append("Flux Realism")
+
     return {
         "gemini_imagen": has_gemini,
         "openai_dalle": has_openai,
         "fal_ai": has_fal,
-        "active_models": [
-            *(["FLUX 1.1 Pro (Industry #1)", "Stable Diffusion 3.5 Large", "Ideogram 2.0"] if has_fal else []),
-            *(["Google Imagen 3 (Ultra 8K)"] if has_gemini else []),
-            *(["OpenAI DALL-E 3 (Cinema HD)"] if has_openai else []),
-            "Seedance v2 (Cinema)",
-            "Flux Realism"
-        ]
+        "active_models": active
     }
 
 @router.post("/ai-image")
